@@ -6,14 +6,14 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import edu.iu.p565.customerservice.model.Customer;
-import edu.iu.p565.customerservice.repository.CustomerRepository;
+import edu.iu.p565.customerservice.repository.InMemoryCustomerRepository;
 
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
-    private CustomerRepository repository;
+    private InMemoryCustomerRepository repository;
 
-    public CustomerController(CustomerRepository repository) {
+    public CustomerController(InMemoryCustomerRepository repository) {
         this.repository = repository;
     }
 
@@ -24,17 +24,21 @@ public class CustomerController {
 
     @PostMapping
     public int create(@Valid @RequestBody Customer customer) {
-        return repository.create(customer);
+        Customer addedCustomer = repository.save(customer);
+        return addedCustomer.getId();
     }
 
     @PutMapping("/{id}")
     public void update(@Valid @RequestBody Customer customer, @PathVariable int id) {
-        repository.update(customer, id);
+        customer.setId();
+        repository.save(customer);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable int id) {
-        repository.delete(id);
+        Customer customer = new Customer();
+        customer.setId(id);
+        repository.delete(customer);
     }
     
 }
